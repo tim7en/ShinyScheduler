@@ -30,7 +30,3 @@ copy.df_0<- function (x){
 #will be suggested
 #
 #
-send.home <- function (x){ #Based on overtime
-  x <- selectByDate (x, month = c(m), year = c(y))
-  length(which(x[,2]==4)) #Overtime
-}
