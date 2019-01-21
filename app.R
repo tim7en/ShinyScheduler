@@ -37,9 +37,14 @@ if (interactive()) {
             htmlOutput("text3")
           ),
           column(
-            4,
+            3,
             align = "center",
             htmlOutput("text4")
+          ),
+          column(
+            2,
+            align = "center",
+            htmlOutput("text5")
           )
         ),
         br(),
@@ -157,7 +162,7 @@ if (interactive()) {
     # Colors, numbers and description (0 - was off, 1 - was active, 2 - on hold, 3 - sent home, 4 - overtime (call in))
     output$nurse_state <- renderDT({
       datatable(nurse_state(), options = list(pageLength = 10)) %>%
-        formatStyle("state", target = "row", backgroundColor = styleEqual(c(0, 1), c("#fc8a8a", "lightgreen"))) #
+        formatStyle("state", target = "row", backgroundColor = styleEqual(c(0, 1, 2,3, 4 ), c("#fc8a8a", "green","yellow", "orange","blue"))) #
     })
 
     output$nurse_state_plot <- renderDygraph({
@@ -189,6 +194,9 @@ if (interactive()) {
     })
     output$text4 <- renderText({
       "<span style=\"color:orange\">Sent home</span>"
+    })
+    output$text5 <- renderText({
+      "<span style=\"color:yellow\">On call</span>"
     })
 
     atwork <- reactive({
@@ -236,10 +244,16 @@ if (interactive()) {
       if (input$N == 0) {
 
       } else {
+        
         call.in <- function(x) { # Based on least overtime
-          x <- x[x[, 1] >= input$daterange[1] & x[, 1] <= input$daterange[2], ]
-          length(which(x[, 2] == 4)) # Overtime
+          if (x[nrow(x),2] == 2) { #If the nurse is on call, call her!
+            return (99999)
+          } else {
+            x <- x[x[, 1] >= input$daterange[1] & x[, 1] <= input$daterange[2], ]
+            length(which(x[, 2] == 4)) # Else, look at the overtime!
+          }
         }
+        
         nurses_to_call <- lapply(l[which(names(l) %in% athome())], call.in)
         names(sort(unlist(nurses_to_call), decreasing = FALSE)[c(1:input$N)])
       }
